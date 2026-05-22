@@ -9,7 +9,7 @@ let dealerHand = Math.floor(Math.random() * 11) + 11;
 const player = {
   money: 200,
 };
-
+let isAlive;
 
 //Dom manipulation
 const playerEl = document.querySelector("p#player-el");
@@ -22,7 +22,6 @@ startGameEl.classList.add("active");
 const stopGameEl = document.querySelector("button#stop-game");
 const restartGameEl = document.querySelector("button#restart-game");
 let message = "";
-
 
 function startGame() {
   firstCard = getRandomCard();
@@ -46,6 +45,7 @@ function startGame() {
 }
 
 function renderGame() {
+  isAlive = true
   startGameEl.classList.remove("active");
   stopGameEl.classList.add("active");
 
@@ -57,11 +57,14 @@ function renderGame() {
     player.money += wager * 2;
     restartGameEl.classList.add("active");
     newCardEl.classList.remove("active");
+    stopGameEl.classList.remove("active")
   } else {
     message = "Bust! You lose!";
     player.money -= wager;
     newCardEl.classList.remove("active");
     restartGameEl.classList.add("active");
+    stopGameEl.classList.remove("active");
+    isAlive = false;
   }
   messageEl.textContent = message;
   cardsEl.textContent = `Cards: ${cards.join(" - ")}`;
@@ -70,23 +73,26 @@ function renderGame() {
 }
 
 function stopGame() {
-  if (sum > dealerHand) {
-    message = `You beat the dealer! Dealer had ${dealerHand}`;
-    player.money += wager * 2;
-  } else if (sum === dealerHand) {
-    message = `Push! Dealer had ${dealerHand}`;
-  } else {
-    message = `Dealer wins! Dealer had ${dealerHand}`;
-    player.money -= wager;
+  if (isAlive) {
+    if (sum > dealerHand) {
+      message = `You beat the dealer! Dealer had ${dealerHand}`;
+      player.money += wager * 2;
+    } else if (sum === dealerHand) {
+      message = `Push! Dealer had ${dealerHand}`;
+    } else {
+      message = `Dealer wins! Dealer had ${dealerHand}`;
+      player.money -= wager;
+    }
   }
 
+  stopGameEl.classList.remove("active");
   messageEl.textContent = message;
   playerEl.textContent = `${player.name} $${player.money}`;
   newCardEl.classList.remove("active");
   restartGameEl.classList.add("active");
 }
 
-function newCard() {
+function getNewCard() {
   let newCard = getRandomCard();
   cards.push(newCard);
   sum += newCard;
